@@ -1,33 +1,61 @@
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { StepFunModels, GLMModels, NemoModels, TrinityModels } from "../AI-Models/models";
+import OpenAI from "openai";
+import { MODELS, ModelKey } from "../AI-Models/models";
 
+/**
+ * Single OpenAI client pointing to OpenRouter
+ */
+const client = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY!,
+  baseURL: "https://openrouter.ai/api/v1",
+});
 
-type ModelKey =  "stepfun" | "glm"| "nemotron"|"trinity";
+/**
+ * Non-streaming chat (simple request/response)
+ */
+export const chat = async (
+  message: string,
+  modelName: ModelKey = "stepfun",
+  history: { role: "system" | "user" | "assistant"; content: string }[] = []
+) => {
+  const model = MODELS[modelName];
 
-export const getModelInstance = (modelName: ModelKey) => {
-  switch (modelName) {
-    case "trinity":
-      return TrinityModels.trinity;
-    case "stepfun":
-      return StepFunModels.stepfun;
-    case "glm":
-      return GLMModels.glm;
-    case "nemotron":
-      return NemoModels.nemotron;
-    default:
-      throw new Error(
-        `Invalid model selected: ${modelName}. Choose "trinity", "stepfun", "glm", or "nemotron"`
-      );
-  }
+  const completion = await client.chat.completions.create({
+    model,
+    messages: [
+      { role: "system", content: "You are Royalty AI, a helpful assistant." },
+      ...history,
+      { role: "user", content: message },
+    ],
+  });
+
+  return completion.choices[0].message.content;
 };
 
-export const chat = async (message: string, modelName: ModelKey = "stepfun") => {
-  const model = getModelInstance(modelName);
+/**
+ * Streaming chat (SSE compatible)
+ */
+export const streamChat = async (
+  message: string,
+  modelName: ModelKey,
+  history: { role: "system" | "user" | "assistant"; content: string }[],
+  onToken: (token: string) => void
+) => {
+  const model = MODELS[modelName];
 
-  const response = await model.invoke([
-    new SystemMessage("You are Royalty AI and assisting users with their queries."),
-    new HumanMessage(message),
-  ]);
+  const stream = await client.chat.completions.create({
+    model,
+    stream: true,
+    messages: [
+      { role: "system", content: "You are Royalty AI, a helpful assistant." },
+      ...history,
+      { role: "user", content: message },
+    ],
+  });
 
-  return response.content;
+  for await (const chunk of stream) {
+    const token = chunk.choices[0]?.delta?.content;
+    if (token) {
+      onToken(token);
+    }
+  }
 };
