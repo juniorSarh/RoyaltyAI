@@ -1,11 +1,14 @@
 import ChatWindow from "./components/chatWindow";
 import MessageInput from "./components/messageInput";
 import ModelSelector from "./components/modelSelector";
+import "./styles/chat.css";
 
 export default function App() {
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      <h2>RoyaltyAI Chat</h2>
+    <div className="app">
+      <header className="app-header">
+        <span className="app-title">Royalty AI</span>
+      </header>
       <ModelSelector />
       <ChatWindow />
       <MessageInput />

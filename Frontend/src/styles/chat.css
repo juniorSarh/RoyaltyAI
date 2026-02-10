@@ -1,0 +1,177 @@
+/* ===========================
+   GLOBAL RESET
+=========================== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* ===========================
+   APP LAYOUT
+=========================== */
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.app-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+/* ===========================
+   CHAT WINDOW
+=========================== */
+.chat-window {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  margin: 16px 0;
+  background: #020617;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+}
+
+/* Scrollbar */
+.chat-window::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-window::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+/* ===========================
+   MESSAGE BUBBLES
+=========================== */
+.message {
+  max-width: 80%;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.message.user {
+  background: #1d4ed8;
+  color: #eff6ff;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.message.assistant {
+  background: #020617;
+  border: 1px solid #1e293b;
+  color: #a7f3d0;
+  margin-right: auto;
+  border-bottom-left-radius: 4px;
+}
+
+/* ===========================
+   INPUT AREA
+=========================== */
+.input-area {
+  display: flex;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #1e293b;
+}
+
+.chat-input {
+  flex: 1;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 12px;
+  color: #e5e7eb;
+  font-size: 14px;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+.btn {
+  background: #2563eb;
+  border: none;
+  color: white;
+  padding: 0 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+.btn:disabled {
+  background: #334155;
+  cursor: not-allowed;
+}
+
+/* ===========================
+   MODEL SELECTOR
+=========================== */
+.model-selector {
+  background: #020617;
+  border: 1px solid #1e293b;
+  color: #e5e7eb;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ===========================
+   STREAMING INDICATOR
+=========================== */
+.typing {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-left: 4px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+/* ===========================
+   MOBILE RESPONSIVE
+=========================== */
+@media (max-width: 640px) {
+  .app {
+    padding: 10px;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+}
