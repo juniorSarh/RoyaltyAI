@@ -1,15 +1,19 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import chatRoute from "./routes/chatRoute";
+import path from "path";
+
 dotenv.config();
 const app = express();
 
-
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, "../../public")));
 app.use(cors());
 app.use(express.json());
 
 // Endpoint
-
+app.use("/api", chatRoute);
 
 // start server
 const PORT = process.env.PORT || 5000;
