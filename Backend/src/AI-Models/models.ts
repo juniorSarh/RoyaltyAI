@@ -1,23 +1,22 @@
-import { ChatGroq } from "@langchain/groq";
 import { ChatOpenAI } from "@langchain/openai";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-// -------- GROQ --------
-if (!process.env.GROQ_API_KEY) {
-  throw new Error("GROQ_API_KEY is missing in .env");
+if (!process.env.TRINITY_API_KEY) {
+  throw new Error("TRINITY_API_KEY is missing in .env");
 }
 
-export const GroqModels = {
-  llama: new ChatGroq({
-    apiKey: process.env.GROQ_API_KEY!,
-    model: "llama-3.1-70b-versatile",
+export const TrinityModels = {
+  trinity: new ChatOpenAI({
+    modelName: "arcee-ai/trinity-mini:free",
     temperature: 0.7,
+    apiKey: process.env.TRINITY_API_KEY!,
+    configuration: {
+      baseURL: "https://openrouter.ai/api/v1",
+    },
   }),
 };
-
 // -------- STEPFUN --------
 if (!process.env.STEPFUN_API_KEY) {
   throw new Error("STEPFUN_API_KEY is missing in .env");
@@ -41,7 +40,7 @@ if (!process.env.GLM_API_KEY) {
 
 export const GLMModels = {
   glm: new ChatOpenAI({
-    modelName: "zhipuai/glm-4",
+    modelName: "z-ai/glm-4.5-air:free",
     temperature: 0.7,
     apiKey: process.env.GLM_API_KEY!,
     configuration: {
@@ -66,20 +65,4 @@ if (!process.env.NEMOTRON_API_KEY) {
   }),
 };
 
-  /*
-  if(!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is missing in .env");
-  }
-
-  console.log("Google API Key found:", process.env.GOOGLE_GENERATIVE_AI_API_KEY?.substring(0, 10) + "...");
-
-  //----google gemini----
-  export const GoogleGeminiModel = {
-  googleGemini: new ChatGoogleGenerativeAI({
-    model: "gemini-1.5-flash",  
-    temperature: 0.7,
-    apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY!,
-  })
-  };
-  */
-
+ 

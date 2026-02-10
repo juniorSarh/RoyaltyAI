@@ -1,14 +1,13 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { GroqModels, StepFunModels, GLMModels, NemoModels } from "../AI-Models/models";
-// Google Gemini temporarily disabled due to API issues
-// import { GoogleGeminiModel } from "../AI-Models/models";
+import { StepFunModels, GLMModels, NemoModels, TrinityModels } from "../AI-Models/models";
 
-type ModelKey = "llama" | "stepfun" | "glm"| "nemotron"; // "gemini" temporarily disabled
+
+type ModelKey =  "stepfun" | "glm"| "nemotron"|"trinity";
 
 export const getModelInstance = (modelName: ModelKey) => {
   switch (modelName) {
-    case "llama":
-      return GroqModels.llama;
+    case "trinity":
+      return TrinityModels.trinity;
     case "stepfun":
       return StepFunModels.stepfun;
     case "glm":
@@ -17,16 +16,16 @@ export const getModelInstance = (modelName: ModelKey) => {
       return NemoModels.nemotron;
     default:
       throw new Error(
-        `Invalid model selected: ${modelName}. Choose "llama", "stepfun", "glm", or "nemotron"`
+        `Invalid model selected: ${modelName}. Choose "trinity", "stepfun", "glm", or "nemotron"`
       );
   }
 };
 
-export const chat = async (message: string, modelName: ModelKey = "llama") => {
+export const chat = async (message: string, modelName: ModelKey = "stepfun") => {
   const model = getModelInstance(modelName);
 
   const response = await model.invoke([
-    new SystemMessage("You are a helpful assistant."),
+    new SystemMessage("You are Royalty AI and assisting users with their queries."),
     new HumanMessage(message),
   ]);
 
