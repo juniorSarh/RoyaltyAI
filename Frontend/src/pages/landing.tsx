@@ -10,20 +10,17 @@ const LandingPage: React.FC = () => {
         <h1 className="logo">Royalty AI</h1>
         <nav>
           <a href="#features">Features</a>
-          <a href="#">Docs</a>
-          <a href="#">Launch App</a>
         </nav>
       </header>
 
       <section className="hero">
         <div className="hero-text">
           <h2>
-            One Interface.<br />
-            <span>Multiple AI Models.</span>
+            Hi Welcome.<br />
+            <span>where curiosity meets AI.</span>
           </h2>
           <p>
-            Royalty AI unifies the world’s most powerful open models — StepFun, GLM,
-            Nemotron, and Trinity — into one seamless, streaming chat experience.
+            Royalty AI unifies the world’s most powerful open models for experiancing the world’s of Artificial Intellience  — into one seamless, streaming chat experience.
           </p>
           <button className="cta" onClick={() => navigate("/home")}>Start Chatting →</button>
         </div>
@@ -63,7 +60,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       <footer className="landing-footer">
-        © 2026 Royalty AI • Built for developers • Powered by OpenRouter
+        © 2026 Royalty AI • Built for developers • Powered by Royalty Technologies
       </footer>
     </div>
   );
