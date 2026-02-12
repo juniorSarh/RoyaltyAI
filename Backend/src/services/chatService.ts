@@ -46,7 +46,7 @@ export const streamChat = async (
     model,
     stream: true,
     messages: [
-      { role: "system", content: "You are Royalty AI, a helpful assistant." },
+      { role: "system", content: "You are Royalty AI, a helpful assistant. answer questions clearly and concisely." },
       ...history,
       { role: "user", content: message },
     ],
