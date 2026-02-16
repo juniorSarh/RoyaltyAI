@@ -1,34 +1,52 @@
 import OpenAI from "openai";
 import { MODELS, ModelKey } from "../AI-Models/models";
+import { isTimeSensitive } from "../utils/isTimeSensitive";
+import { searchWeb } from "./webSearch.service";
+import { SYSTEM_PROMPT } from "../prompts/systemPrompt";
 
-/**
- * Single OpenAI client pointing to OpenRouter
- */
 const client = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY!,
   baseURL: "https://openrouter.ai/api/v1",
 });
 
-/**
- * Non-streaming chat (simple request/response)
- */
 export const chat = async (
-  message: string,
-  modelName: ModelKey = "stepfun",
-  history: { role: "system" | "user" | "assistant"; content: string }[] = []
+  question: string,
+  modelName: ModelKey = "stepfun"
 ) => {
-  const model = MODELS[modelName];
+  console.log("🔍 Chat function called with question:", question);
+  console.log("🔍 Checking time sensitivity for:", question);
+  
+  let context = "";
 
+  // 🔍 Fetch live data if needed
+  if (isTimeSensitive(question)) {
+    console.log("✅ Question is time-sensitive, searching web...");
+    try {
+      context = await searchWeb(question);
+      console.log("🌐 Web search context:", context);
+    } catch (error) {
+      console.error("❌ Web search failed:", error);
+      return "I am failing to get you accurate answer.";
+    }
+  } else {
+    console.log("❌ Question is not time-sensitive, using knowledge only");
+  }
+
+  console.log("🤖 Calling AI with model:", modelName);
   const completion = await client.chat.completions.create({
-    model,
+    model: MODELS[modelName],
     messages: [
-      { role: "system", content: "You are Royalty AI, a helpful assistant." },
-      ...history,
-      { role: "user", content: message },
+      { role: "system" as const, content: SYSTEM_PROMPT },
+      ...(context
+        ? [{ role: "system" as const, content: `Latest verified information:\n${context}` }]
+        : []),
+      { role: "user" as const, content: question },
     ],
   });
 
-  return completion.choices[0].message.content;
+  const response = completion.choices[0].message.content;
+  console.log("📝 AI Response:", response);
+  return response;
 };
 
 /**
@@ -40,30 +58,43 @@ export const streamChat = async (
   history: { role: "system" | "user" | "assistant"; content: string }[],
   onToken: (token: string) => void
 ) => {
+  console.log("🌊 StreamChat function called with message:", message);
+  console.log("🔍 Checking time sensitivity for:", message);
+  
   const model = MODELS[modelName];
+  let context = "";
 
+  // 🔍 Fetch live data if needed
+  if (isTimeSensitive(message)) {
+    console.log("✅ Message is time-sensitive, searching web...");
+    try {
+      context = await searchWeb(message);
+      console.log("🌐 Web search context:", context);
+    } catch (error) {
+      console.error("❌ Web search failed:", error);
+      // Continue without context if web search fails
+    }
+  } else {
+    console.log("❌ Message is not time-sensitive, using knowledge only");
+  }
+
+  console.log("🤖 Calling AI with model:", modelName);
+  
+  const messages = [
+    { role: "system" as const, content: SYSTEM_PROMPT },
+    ...(context
+        ? [{ role: "system" as const, content: `Latest verified information:\n${context}` }]
+        : []),
+    ...history,
+    { role: "user" as const, content: message },
+  ];
+  
+  console.log("📨 Full messages array being sent to AI:", JSON.stringify(messages, null, 2));
+  
   const stream = await client.chat.completions.create({
     model,
     stream: true,
-    messages: [
-      { role: "system", content: `You are Royalty AI, a factual and reliable assistant.
-
-Answer questions clearly, concisely, and in plain language.
-Provide only accurate, up-to-date information that you are confident about.
-
-If you are not certain about the answer or cannot verify its accuracy, respond with:
-"I am failing to get you the accurate answer."
-
-Do not guess, assume, or hallucinate information.
-
-Keep responses short and focused. Do not include unnecessary details or long explanations.
-
-Format responses using clear paragraphs and natural spacing.
-Do not use markdown symbols, bullet points, or special formatting.`
- },
-      ...history,
-      { role: "user", content: message },
-    ],
+    messages,
   });
 
   for await (const chunk of stream) {

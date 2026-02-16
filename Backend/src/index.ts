@@ -5,6 +5,13 @@ import chatRoute from "./routes/chatRoute";
 import path from "path";
 
 dotenv.config();
+
+// Debug: Check if environment variables are loaded
+console.log("🔧 Environment Variables Check:");
+console.log("🔑 OPENROUTER_API_KEY:", process.env.OPENROUTER_API_KEY ? "✅ Present" : "❌ Missing");
+console.log("🔑 TAVILY_API_KEY:", process.env.TAVILY_API_KEY ? "✅ Present" : "❌ Missing");
+console.log("🔑 PORT:", process.env.PORT || "5000 (default)");
+
 const app = express();
 
 // Serve static files from public directory

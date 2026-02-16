@@ -29,7 +29,7 @@ export const chatController = async (req: Request, res: Response) => {
     } else {
       // Non-streaming fallback
       const { chat } = await import("../services/chatService");
-      const reply = await chat(message, model || "stepfun", history);
+      const reply = await chat(message, model || "stepfun");
       res.json({ reply });
     }
   } catch (error: any) {
