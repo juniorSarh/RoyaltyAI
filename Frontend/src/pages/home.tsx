@@ -3,27 +3,49 @@ import { useDispatch, useSelector } from "react-redux";
 import { streamChat } from "../services/chatAPI";
 import { setModel } from "../features/chatSlice";
 import { type RootState } from "../app/store";
+import MarkdownRenderer from "../components/MarkdownRenderer";
 import "../styles/home.css";
 
+
 export default function Home() {
+
   const [text, setText] = useState("");
+
   const [showChat, setShowChat] = useState(false);
+
   const dispatch = useDispatch();
+
   const { model, streaming, messages } = useSelector((state: RootState) => state.chat);
 
+
+
   const send = () => {
+
     if (!text.trim() || streaming) return;
+
     dispatch<any>(streamChat(text));
+
     setText("");
+
     setShowChat(true);
+
   };
 
+
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
+
     if (e.key === 'Enter' && !e.shiftKey) {
+
       e.preventDefault();
+
       send();
+
     }
+
   };
+
+
 
   return (
     <div className="home-container">
@@ -46,7 +68,11 @@ export default function Home() {
                 className={`message-wrapper ${message.role}`}
               >
                 <div className="message-bubble">
-                  {message.content || <span className="streaming-cursor">▋</span>}
+                  {message.role === 'user' ? (
+                    <span>{message.content}</span>
+                  ) : (
+                    message.content ? <MarkdownRenderer content={message.content} /> : <span className="streaming-cursor">▋</span>
+                  )}
                 </div>
               </div>
             ))}
@@ -104,4 +130,6 @@ export default function Home() {
       </div>
     </div>
   );
+
 }
+
