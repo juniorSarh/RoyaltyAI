@@ -4,11 +4,15 @@ interface TavilyResult {
   title?: string;
   content?: string;
   snippet?: string;
+  url?: string;
+  published_date?: string;
+  score?: number;
 }
 
 interface TavilyResponse {
   answer?: string;
   results?: TavilyResult[];
+  follow_up_questions?: string[];
 }
 
 export const searchWeb = async (query: string) => {
@@ -29,9 +33,12 @@ export const searchWeb = async (query: string) => {
     },
     body: JSON.stringify({
       query,
-      max_results: 3,
-      recency: 365,
+      max_results: 5, // Increased for more comprehensive results
+      recency: 30, // More recent data (30 days instead of 365)
       include_answer: true,
+      include_raw_content: true,
+      include_domains: [], // Search all domains for comprehensive results
+      exclude_domains: [], // No exclusions for broader coverage
     }),
   });
 
@@ -47,23 +54,73 @@ export const searchWeb = async (query: string) => {
   const data = await response.json() as TavilyResponse;
   console.log("📦 Raw response data:", JSON.stringify(data, null, 2));
 
-  // Handle different response structures from Tavily API
+  // Build comprehensive real-time data from multiple sources
+  let comprehensiveData = "";
+  
+  // 1. Use direct answer if available (most concise)
   if (data.answer) {
     console.log("✅ Using direct answer:", data.answer);
-    return data.answer;
+    comprehensiveData += `DIRECT ANSWER:\n${data.answer}\n\n`;
   }
 
-  // Try to extract content from results
+  // 2. Extract detailed information from results
   if (data.results && Array.isArray(data.results)) {
-    const result = data.results
-      .map((r: TavilyResult) => r.content || r.snippet || r.title || "")
-      .filter(Boolean)
-      .join("\n");
-    console.log("✅ Using results array:", result);
-    return result;
+    console.log("✅ Processing", data.results.length, "search results");
+    
+    comprehensiveData += "DETAILED SOURCES:\n";
+    
+    const processedResults = data.results
+      .filter((r: TavilyResult) => r.content || r.snippet || r.title)
+      .sort((a: TavilyResult, b: TavilyResult) => (b.score || 0) - (a.score || 0)) // Sort by relevance
+      .slice(0, 5); // Top 5 most relevant results
+    
+    processedResults.forEach((result: TavilyResult, index: number) => {
+      const source = result.url ? new URL(result.url).hostname : "Unknown Source";
+      const date = result.published_date ? ` (${result.published_date})` : "";
+      
+      comprehensiveData += `\n${index + 1}. ${result.title || 'Untitled'}${date}\n`;
+      comprehensiveData += `   Source: ${source}\n`;
+      
+      if (result.content && result.content.length > 100) {
+        // Use full content if available and substantial
+        comprehensiveData += `   Content: ${result.content.substring(0, 500)}${result.content.length > 500 ? '...' : ''}\n`;
+      } else if (result.snippet) {
+        // Fallback to snippet
+        comprehensiveData += `   Summary: ${result.snippet}\n`;
+      }
+      
+      if (result.url) {
+        comprehensiveData += `   URL: ${result.url}\n`;
+      }
+      
+      comprehensiveData += "\n";
+    });
   }
 
-  console.log("❌ No results found, returning empty string");
-  // Fallback: return empty string if no results found
-  return "";
+  // 3. Include follow-up questions if available
+  if (data.follow_up_questions && data.follow_up_questions.length > 0) {
+    console.log("✅ Including follow-up questions:", data.follow_up_questions);
+    comprehensiveData += "RELATED QUESTIONS:\n";
+    data.follow_up_questions.forEach((question: string, index: number) => {
+      comprehensiveData += `${index + 1}. ${question}\n`;
+    });
+  }
+
+  // 4. Add metadata about the search
+  const searchTimestamp = new Date().toISOString();
+  comprehensiveData += `\nSEARCH METADATA:\n`;
+  comprehensiveData += `- Query: "${query}"\n`;
+  comprehensiveData += `- Search performed: ${searchTimestamp}\n`;
+  comprehensiveData += `- Sources found: ${data.results?.length || 0}\n`;
+  comprehensiveData += `- Data recency: Last 30 days\n`;
+
+  console.log("✅ Comprehensive data assembled, length:", comprehensiveData.length);
+  console.log("📄 Data preview:", comprehensiveData.substring(0, 300) + "...");
+  
+  if (!comprehensiveData.trim()) {
+    console.log("❌ No comprehensive data could be assembled");
+    return "";
+  }
+
+  return comprehensiveData;
 };
