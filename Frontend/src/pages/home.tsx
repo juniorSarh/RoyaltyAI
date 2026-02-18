@@ -1,135 +1,178 @@
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { type AppDispatch } from "../app/store";
 import { streamChat } from "../services/chatAPI";
-import { setModel } from "../features/chatSlice";
-import { type RootState } from "../app/store";
+import { setModel, clearChat } from "../features/chatSlice";
+import { type ModelType } from "../types/chatTypes";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import "../styles/home.css";
 
+interface SidebarProps {
+  chats: string[];
+  onNewChat: () => void;
+}
 
-export default function Home() {
+const Sidebar: React.FC<SidebarProps> = ({ chats, onNewChat }) => {
+  return (
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <button className="new-chat-button" onClick={onNewChat}>
+          + New chat
+        </button>
+      </div>
+      
+      <nav className="sidebar-nav">
+        <ul>
+          <li><a href="#">Search chats</a></li>
+          <li><a href="#">Images</a></li>
+          <li><a href="#">Apps</a></li>
+          <li><a href="#">Setting</a></li>
+          <li><a href="#">Profile</a></li>
+        </ul>
+      </nav>
+      <div className="your-chats">
+        <h3>Your chats</h3>
+        <ul>
+          {chats.map((chat, index) => (
+            <li key={index}><a href="#">{chat}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
 
-  const [text, setText] = useState("");
+const Home: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { messages, streaming, model } = useSelector((state: any) => state.chat);
+  const [input, setInput] = useState<string>("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const [showChat, setShowChat] = useState(false);
+  const dummyChats = [
+    "React Router Navigation Fix",
+    "Enable Firebase Storage", 
+    "Caricature Request for Job",
+    "Firebase Expo Connection Issue",
+    "CV Update Full Stack Dev",
+    "Motivational Letter IT Graduate",
+    "React Native Restaurant App",
+    "Code Review and Fixes",
+    "User Emails by Age",
+    "Audio Recording App CRUD",
+  ];
 
-  const dispatch = useDispatch();
+  const models: { key: ModelType; name: string }[] = [
+    { key: "trinity", name: "Trinity" },
+    { key: "stepfun", name: "StepFun" },
+    { key: "glm", name: "GLM" },
+    { key: "nemotron", name: "Nemotron" },
+  ];
 
-  const { model, streaming, messages } = useSelector((state: RootState) => state.chat);
-
-
-
-  const send = () => {
-
-    if (!text.trim() || streaming) return;
-
-    dispatch<any>(streamChat(text));
-
-    setText("");
-
-    setShowChat(true);
-
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
+  const handleSendMessage = async () => {
+    if (input.trim() === "" || streaming) return;
+
+    dispatch(streamChat(input));
+    setInput("");
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-
-    if (e.key === 'Enter' && !e.shiftKey) {
-
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-
-      send();
-
+      handleSendMessage();
     }
-
   };
 
+  const handleNewChat = () => {
+    dispatch(clearChat());
+    setInput("");
+  };
 
+  const handleModelChange = (newModel: ModelType) => {
+    dispatch(setModel(newModel));
+  };
 
   return (
-    <div className="home-container">
-      {/* Header */}
-      <header className="home-header">
-        <h1 className="home-title">Royalty AI</h1>
-        
-        {!showChat && messages.length === 0 && (
-          <p className="home-greeting">Hi there, what you want to know?</p>
-        )}
-      </header>
-
-      {/* Chat Messages */}
-      {showChat && (
+    <div className="home-layout">
+      <Sidebar 
+        chats={dummyChats} 
+        onNewChat={handleNewChat}
+      />
+      <div className="main-content">
         <div className="chat-messages-container">
-          <div className="chat-messages">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`message-wrapper ${message.role}`}
-              >
-                <div className="message-bubble">
-                  {message.role === 'user' ? (
-                    <span>{message.content}</span>
-                  ) : (
-                    message.content ? <MarkdownRenderer content={message.content} /> : <span className="streaming-cursor">▋</span>
-                  )}
+          {messages.length === 0 ? (
+            <div className="welcome-message">
+              <h1>Where should we begin?</h1>
+            </div>
+          ) : (
+            <div className="chat-messages">
+              {messages.map((message: any, index: number) => (
+                <div
+                  key={index}
+                  className={`message-wrapper ${message.role}`}
+                >
+                  <div className={`message-bubble ${message.role}`}>
+                    {message.role === "assistant" ? (
+                      <MarkdownRenderer content={message.content} />
+                    ) : (
+                      message.content
+                    )}
+                    {streaming && index === messages.length - 1 && (
+                      <span className="streaming-cursor">|</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-            {streaming && (
-              <div className="message-wrapper assistant">
-                <div className="message-bubble">
-                  <span className="streaming-cursor">▋</span>
-                </div>
-              </div>
-            )}
-          </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
         </div>
-      )}
-
-      {/* Input Area */}
-      <div className="input-container">
-        <div className="input-wrapper">
-          <div className="input-box">
-            <div className="input-controls">
-              {/* Model Selector Button */}
-              <button
-                onClick={() => {
-                  const models = ['trinity', 'stepfun', 'glm', 'nemotron'];
-                  const currentIndex = models.indexOf(model);
-                  const nextIndex = (currentIndex + 1) % models.length;
-                  dispatch(setModel(models[nextIndex] as any));
-                }}
-                className="model-button"
-              >
-                {model.charAt(0).toUpperCase() + model.slice(1)}^
-              </button>
-
-              {/* Text Input */}
-              <input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask anything here......."
-                className="chat-input-field"
-                disabled={streaming}
-              />
-
-              {/* Send Button */}
-              <button
-                onClick={send}
-                disabled={!text.trim() || streaming}
-                className="send-button"
-              >
-                {streaming ? '...' : 'chat'}
-              </button>
+        <div className="input-container">
+          <div className="input-wrapper">
+            <div className="input-box">
+              <div className="input-controls">
+                <select 
+                  className="model-select-input"
+                  value={model}
+                  onChange={(e) => handleModelChange(e.target.value as ModelType)}
+                >
+                  {models.map((model) => (
+                    <option key={model.key} value={model.key}>
+                      {model.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  className="chat-input-field"
+                  placeholder="Message Royalty AI..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={streaming}
+                />
+                <button
+                  className="send-button"
+                  onClick={handleSendMessage}
+                  disabled={streaming || input.trim() === ""}
+                >
+                  Send
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
+};
 
-}
+export default Home;
 
