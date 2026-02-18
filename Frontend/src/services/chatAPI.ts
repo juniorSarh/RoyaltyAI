@@ -5,7 +5,7 @@ import {
   setStreaming,
 } from "../features/chatSlice";
 
-const API_URL = "http://localhost:5000/api/chat";
+const API_URL = "https://royaltyai.onrender.com/api/chat";
 
 export const streamChat =
   (message: string) =>

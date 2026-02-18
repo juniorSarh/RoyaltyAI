@@ -85,8 +85,11 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
+  height: auto;
+  max-height: 50vh;
+  overflow-y: auto;
   transition: transform 0.3s ease;
+  z-index: 1000;
 }
 
 .new-chat-button {
@@ -207,6 +210,8 @@
   margin: 0 auto;
   width: 100%;
   padding: 0 1rem 2rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
 }
 
 .chat-messages {
@@ -544,6 +549,7 @@
   
   .chat-messages-container {
     padding: 0 0.5rem 1rem;
+    max-height: calc(100vh - 180px);
   }
   
   .message-bubble {
