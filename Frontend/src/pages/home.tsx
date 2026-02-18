@@ -10,35 +10,40 @@ import "../styles/home.css";
 interface SidebarProps {
   chats: string[];
   onNewChat: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ chats, onNewChat }) => {
+const Sidebar: React.FC<SidebarProps> = ({ chats, onNewChat, isOpen = false, onClose }) => {
   return (
-    <div className="sidebar">
-      <div className="sidebar-header">
-        <button className="new-chat-button" onClick={onNewChat}>
-          + New chat
-        </button>
+    <>
+      <div className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <div className="sidebar-header">
+          <button className="new-chat-button" onClick={onNewChat}>
+            + New chat
+          </button>
+        </div>
+        
+        <nav className="sidebar-nav">
+          <ul>
+            <li><a href="#">Search chats</a></li>
+            <li><a href="#">Images</a></li>
+            <li><a href="#">Apps</a></li>
+            <li><a href="#">Setting</a></li>
+            <li><a href="#">Profile</a></li>
+          </ul>
+        </nav>
+        <div className="your-chats">
+          <h3>Your chats</h3>
+          <ul>
+            {chats.map((chat, index) => (
+              <li key={index}><a href="#">{chat}</a></li>
+            ))}
+          </ul>
+        </div>
       </div>
-      
-      <nav className="sidebar-nav">
-        <ul>
-          <li><a href="#">Search chats</a></li>
-          <li><a href="#">Images</a></li>
-          <li><a href="#">Apps</a></li>
-          <li><a href="#">Setting</a></li>
-          <li><a href="#">Profile</a></li>
-        </ul>
-      </nav>
-      <div className="your-chats">
-        <h3>Your chats</h3>
-        <ul>
-          {chats.map((chat, index) => (
-            <li key={index}><a href="#">{chat}</a></li>
-          ))}
-        </ul>
-      </div>
-    </div>
+      {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
+    </>
   );
 };
 
@@ -46,6 +51,7 @@ const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { messages, streaming, model } = useSelector((state: any) => state.chat);
   const [input, setInput] = useState<string>("");
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const dummyChats = [
@@ -101,11 +107,32 @@ const Home: React.FC = () => {
 
   return (
     <div className="home-layout">
+      <button 
+        className="hamburger-menu"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        ☰
+      </button>
       <Sidebar 
         chats={dummyChats} 
         onNewChat={handleNewChat}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
       <div className="main-content">
+        <div className="model-selector-top">
+          <select 
+            className="model-select-input"
+            value={model}
+            onChange={(e) => handleModelChange(e.target.value as ModelType)}
+          >
+            {models.map((model) => (
+              <option key={model.key} value={model.key}>
+                {model.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="chat-messages-container">
           {messages.length === 0 ? (
             <div className="welcome-message">
@@ -138,17 +165,6 @@ const Home: React.FC = () => {
           <div className="input-wrapper">
             <div className="input-box">
               <div className="input-controls">
-                <select 
-                  className="model-select-input"
-                  value={model}
-                  onChange={(e) => handleModelChange(e.target.value as ModelType)}
-                >
-                  {models.map((model) => (
-                    <option key={model.key} value={model.key}>
-                      {model.name}
-                    </option>
-                  ))}
-                </select>
                 <input
                   type="text"
                   className="chat-input-field"
