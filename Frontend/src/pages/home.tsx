@@ -57,11 +57,11 @@ const Home: React.FC = () => {
 
   // Debug: Log messages state changes
   React.useEffect(() => {
-    console.log(" Messages state updated:", messages);
-    console.log(" Messages length:", messages.length);
-    console.log(" Streaming state:", streaming);
-    console.log(" Test response state:", testResponse);
-  }, [messages, streaming, testResponse]);
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "assistant") {
+      console.log("🎨 Assistant message:", lastMessage.content);
+    }
+  }, [messages, streaming]);
 
   const dummyChats = [
     "React Router Navigation Fix",

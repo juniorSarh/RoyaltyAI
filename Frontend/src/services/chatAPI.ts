@@ -11,7 +11,6 @@ export const streamChat =
   (message: string) =>
   async (dispatch: AppDispatch, getState: () => RootState) => {
     const { model, messages } = getState().chat;
-
     dispatch(addMessage({ role: "user", content: message }));
     dispatch(addMessage({ role: "assistant", content: "" }));
     dispatch(setStreaming(true));
@@ -20,54 +19,33 @@ export const streamChat =
 
     try {
       console.log("🌐 Sending request to:", API_URL);
-      console.log("📤 Request body:", JSON.stringify({
-        message,
-        model,
-        history: messages,
-        stream: true, // Use streaming for natural buildup
-      }, null, 2));
       
-      // Log conversation context for follow-up questions
-      console.log("💬 Conversation context:");
-      console.log("   Message count:", messages.length);
-      console.log("   Recent messages:", messages.slice(-3).map(m => `${m.role}: ${m.content.substring(0, 50)}...`));
-
       const response = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           message,
           model,
           history: messages,
-          stream: true, // Use streaming for natural buildup
+          stream: true,
         }),
+        signal: controller.signal,
       });
 
-      // Set a timeout of 30 seconds
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, 30000);
-
-      console.log("📡 Response status:", response.status);
-      console.log("📡 Response headers:", Object.fromEntries(response.headers.entries()));
-
       if (!response.ok) {
-        clearTimeout(timeoutId);
-        const errorText = await response.text();
-        console.error("❌ Response error:", errorText);
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
 
       if (!reader) {
-        clearTimeout(timeoutId);
         throw new Error("Streaming not supported");
       }
 
-      console.log("🔄 Starting to read stream...");
+      console.log("🔄 Starting stream...");
       let fullResponse = "";
 
       try {
@@ -75,60 +53,78 @@ export const streamChat =
           const { value, done } = await reader.read();
           if (done) {
             console.log("✅ Stream completed");
-            console.log("📝 Final accumulated response:", fullResponse);
+            console.log("📝 Final response:", fullResponse);
             break;
           }
 
           const chunk = decoder.decode(value, { stream: true });
-          console.log("📦 Received chunk:", chunk);
-
-          // Process each line in the chunk
+          console.log("📦 Raw chunk from backend:", chunk);
+          
+          // Handle multi-line chunks properly
           const lines = chunk.split("\n");
+          console.log("🔍 Split lines:", lines.map(l => JSON.stringify(l)));
+          
+          let currentData = "";
+          
           for (const line of lines) {
+            console.log("🔍 Processing line:", JSON.stringify(line));
+            
             if (line.startsWith("data: ")) {
-              const token = line.replace("data: ", "").trim();
-              if (token && token !== "[DONE]") {
-                console.log("🔤 Token:", JSON.stringify(token));
-                console.log("🔤 Token length:", token.length);
-                console.log("🔤 Token content:", token);
-                fullResponse += token;
-                console.log("📝 Accumulated response so far:", fullResponse);
-                // Accumulate tokens naturally
-                dispatch(updateLastAssistantMessage(token));
-              } else if (token === "[DONE]") {
-                console.log("🏁 Stream finished - Final response:", fullResponse);
+              // If we have accumulated data, process it first
+              if (currentData.trim()) {
+                console.log("🔤 Raw data from backend (accumulated):", JSON.stringify(currentData.trim()));
+                console.log("🔤 Token length:", currentData.trim().length);
+                fullResponse += currentData.trim();
+                console.log("📤 About to dispatch token to Redux:", JSON.stringify(currentData.trim()));
+                dispatch(updateLastAssistantMessage(currentData.trim()));
+                console.log("✅ Token dispatched to Redux");
+                
+                const currentState = getState().chat.messages;
+                const lastMessage = currentState[currentState.length - 1];
+                console.log("🔍 Redux state after dispatch:", lastMessage?.content);
               }
+              
+              // Start new data collection
+              currentData = line.replace("data: ", "").trim();
+              console.log("🔍 Started new data collection:", JSON.stringify(currentData));
+              
+            } else if (line.trim() !== "") {
+              // Continue accumulating data
+              currentData += line;
+              console.log("🔍 Accumulating data:", JSON.stringify(currentData));
             }
+          }
+          
+          // Process any remaining data
+          if (currentData.trim() && currentData.trim() !== "[DONE]") {
+            console.log("🔤 Raw data from backend (final):", JSON.stringify(currentData.trim()));
+            console.log("� Token length:", currentData.trim().length);
+            fullResponse += currentData.trim();
+            console.log("📤 About to dispatch final token to Redux:", JSON.stringify(currentData.trim()));
+            dispatch(updateLastAssistantMessage(currentData.trim()));
+            console.log("✅ Final token dispatched to Redux");
+            
+            const currentState = getState().chat.messages;
+            const lastMessage = currentState[currentState.length - 1];
+            console.log("🔍 Redux state after final dispatch:", lastMessage?.content);
           }
         }
       } finally {
-        clearTimeout(timeoutId);
+        controller.abort();
       }
       
     } catch (err) {
-      console.error("🔥 Streaming error:", err);
+      console.error("🔥 Error:", err);
       
-      // More specific error handling
       if (err instanceof Error) {
         if (err.name === 'AbortError') {
-          console.log("🛑 Request was aborted");
-        } else if (err.message.includes('Failed to fetch') || err.message.includes('timeout')) {
-          console.error("🚫 Network error - Backend not responding");
-          console.error("💡 Please check:");
-          console.error("   1. Backend server is running");
-          console.error("   2. API URL is correct:", API_URL);
-          console.error("   3. No CORS issues");
-          console.error("   4. Environment variables are set");
-          
-          dispatch(updateLastAssistantMessage("⚠️ **Backend Connection Error**\n\nThe AI server is not responding. This could be because:\n\n• Backend server is not running\n• Server is starting up (cold start)\n• Network connectivity issues\n\n**To fix this:**\n1. Start the backend server: `npm run dev` in the Backend folder\n2. Wait a few seconds and try again\n3. Check if the server is running on the correct port\n\nPlease try again in a moment or contact support if this persists."));
+          console.log("🛑 Request aborted");
         } else {
-          console.error("❌ Other error:", err.message);
-          dispatch(updateLastAssistantMessage(`❌ **Error:** ${err.message}`));
+          const lastMessage = messages[messages.length - 1];
+          if (!lastMessage?.content || lastMessage.content.trim() === "") {
+            dispatch(updateLastAssistantMessage("Connection error. Please try again."));
+          }
         }
-      }
-      
-      if (!(err instanceof Error && err.name === 'AbortError')) {
-        dispatch(updateLastAssistantMessage("Sorry, I can't connect to the server. Please check if the backend is running."));
       }
     } finally {
       dispatch(setStreaming(false));
