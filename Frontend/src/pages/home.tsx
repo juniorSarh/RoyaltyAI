@@ -52,7 +52,16 @@ const Home: React.FC = () => {
   const { messages, streaming, model } = useSelector((state: any) => state.chat);
   const [input, setInput] = useState<string>("");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [testResponse, setTestResponse] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Debug: Log messages state changes
+  React.useEffect(() => {
+    console.log(" Messages state updated:", messages);
+    console.log(" Messages length:", messages.length);
+    console.log(" Streaming state:", streaming);
+    console.log(" Test response state:", testResponse);
+  }, [messages, streaming, testResponse]);
 
   const dummyChats = [
     "React Router Navigation Fix",
@@ -72,6 +81,7 @@ const Home: React.FC = () => {
     { key: "stepfun", name: "StepFun" },
     { key: "glm", name: "GLM" },
     { key: "nemotron", name: "Nemotron" },
+    { key: "gpt_oss", name: "GPT-OSS" },
   ];
 
   const scrollToBottom = () => {
@@ -120,19 +130,6 @@ const Home: React.FC = () => {
         onClose={() => setSidebarOpen(false)}
       />
       <div className="main-content">
-        <div className="model-selector-top">
-          <select 
-            className="model-select-input"
-            value={model}
-            onChange={(e) => handleModelChange(e.target.value as ModelType)}
-          >
-            {models.map((model) => (
-              <option key={model.key} value={model.key}>
-                {model.name}
-              </option>
-            ))}
-          </select>
-        </div>
         <div className="chat-messages-container">
           {messages.length === 0 ? (
             <div className="welcome-message">
@@ -165,6 +162,17 @@ const Home: React.FC = () => {
           <div className="input-wrapper">
             <div className="input-box">
               <div className="input-controls">
+                <select 
+                  className="model-select-input"
+                  value={model}
+                  onChange={(e) => handleModelChange(e.target.value as ModelType)}
+                >
+                  {models.map((model) => (
+                    <option key={model.key} value={model.key}>
+                      {model.name}
+                    </option>
+                  ))}
+                </select>
                 <input
                   type="text"
                   className="chat-input-field"

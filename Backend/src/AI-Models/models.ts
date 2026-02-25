@@ -13,7 +13,7 @@ if (!process.env.OPENROUTER_API_KEY) {
 /**
  * Supported model keys
  */
-export type ModelKey = "trinity" | "stepfun" | "glm" | "nemotron";
+export type ModelKey = "trinity" | "stepfun" | "glm" | "nemotron" | "gpt_oss";
 
 /**
  * OpenRouter model IDs
@@ -24,4 +24,5 @@ export const MODELS: Record<ModelKey, string> = {
   stepfun: "stepfun/step-3.5-flash:free",
   glm: "z-ai/glm-4.5-air:free",
   nemotron: "nvidia/nemotron-3-nano-30b-a3b:free",
+  gpt_oss: "gpt-oss/gpt-oss-3.5-turbo:free",
 };

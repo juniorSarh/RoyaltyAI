@@ -5,6 +5,6 @@ export interface ChatMessage {
   content: string;
 }
 
-export type ModelType = "trinity" | "stepfun" | "glm" | "nemotron";
+export type ModelType = "trinity" | "stepfun" | "glm" | "nemotron"|"gpt_oss";
 
 

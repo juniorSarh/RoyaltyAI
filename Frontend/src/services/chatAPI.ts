@@ -24,8 +24,13 @@ export const streamChat =
         message,
         model,
         history: messages,
-        stream: true,
+        stream: true, // Use streaming for natural buildup
       }, null, 2));
+      
+      // Log conversation context for follow-up questions
+      console.log("💬 Conversation context:");
+      console.log("   Message count:", messages.length);
+      console.log("   Recent messages:", messages.slice(-3).map(m => `${m.role}: ${m.content.substring(0, 50)}...`));
 
       const response = await fetch(API_URL, {
         method: "POST",
@@ -35,7 +40,7 @@ export const streamChat =
           message,
           model,
           history: messages,
-          stream: true,
+          stream: true, // Use streaming for natural buildup
         }),
       });
 
@@ -63,18 +68,18 @@ export const streamChat =
       }
 
       console.log("🔄 Starting to read stream...");
-      let buffer = "";
+      let fullResponse = "";
 
       try {
         while (true) {
           const { value, done } = await reader.read();
           if (done) {
             console.log("✅ Stream completed");
+            console.log("📝 Final accumulated response:", fullResponse);
             break;
           }
 
           const chunk = decoder.decode(value, { stream: true });
-          buffer += chunk;
           console.log("📦 Received chunk:", chunk);
 
           // Process each line in the chunk
@@ -83,10 +88,15 @@ export const streamChat =
             if (line.startsWith("data: ")) {
               const token = line.replace("data: ", "").trim();
               if (token && token !== "[DONE]") {
-                console.log("🔤 Token:", token);
+                console.log("🔤 Token:", JSON.stringify(token));
+                console.log("🔤 Token length:", token.length);
+                console.log("🔤 Token content:", token);
+                fullResponse += token;
+                console.log("📝 Accumulated response so far:", fullResponse);
+                // Accumulate tokens naturally
                 dispatch(updateLastAssistantMessage(token));
               } else if (token === "[DONE]") {
-                console.log("🏁 Stream finished");
+                console.log("🏁 Stream finished - Final response:", fullResponse);
               }
             }
           }
@@ -94,6 +104,7 @@ export const streamChat =
       } finally {
         clearTimeout(timeoutId);
       }
+      
     } catch (err) {
       console.error("🔥 Streaming error:", err);
       
