@@ -51,8 +51,9 @@ const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { messages, streaming, model } = useSelector((state: any) => state.chat);
   const [input, setInput] = useState<string>("");
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(window.innerWidth > 768);
   const [testResponse, setTestResponse] = useState<string>("");
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Debug: Log messages state changes
@@ -62,6 +63,31 @@ const Home: React.FC = () => {
       console.log("🎨 Assistant message:", lastMessage.content);
     }
   }, [messages, streaming]);
+
+  // Handle window resize for sidebar visibility
+  React.useEffect(() => {
+    const handleResize = () => {
+      setSidebarOpen(window.innerWidth > 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.custom-dropdown')) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [dropdownOpen]);
 
   const dummyChats = [
     "React Router Navigation Fix",
@@ -133,7 +159,7 @@ const Home: React.FC = () => {
         <div className="chat-messages-container">
           {messages.length === 0 ? (
             <div className="welcome-message">
-              <h1>Where should we begin?</h1>
+              <h1>Hi there! what you want to know ?</h1>
             </div>
           ) : (
             <div className="chat-messages">
@@ -162,17 +188,31 @@ const Home: React.FC = () => {
           <div className="input-wrapper">
             <div className="input-box">
               <div className="input-controls">
-                <select 
-                  className="model-select-input"
-                  value={model}
-                  onChange={(e) => handleModelChange(e.target.value as ModelType)}
-                >
-                  {models.map((model) => (
-                    <option key={model.key} value={model.key}>
-                      {model.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="custom-dropdown">
+                  <button 
+                    className="dropdown-button"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                  >
+                    {models.find(m => m.key === model)?.name || 'Select Model'}
+                    <span className="dropdown-arrow">▼</span>
+                  </button>
+                  {dropdownOpen && (
+                    <div className="dropdown-menu">
+                      {models.map((model) => (
+                        <div 
+                          key={model.key}
+                          className="dropdown-item"
+                          onClick={() => {
+                            handleModelChange(model.key);
+                            setDropdownOpen(false);
+                          }}
+                        >
+                          {model.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <input
                   type="text"
                   className="chat-input-field"
