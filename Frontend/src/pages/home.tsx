@@ -147,6 +147,9 @@ const Home: React.FC = () => {
         onClose={() => setSidebarOpen(false)}
       />
       <div className="main-content">
+        <div className="chat-header">
+          <h1 className="chat-title">Royalty AI</h1>
+        </div>
         <div className="chat-messages-container">
           {messages.length === 0 ? (
             <div className="welcome-message">

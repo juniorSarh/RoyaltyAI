@@ -185,6 +185,24 @@
   color: #eaeaff;
 }
 
+/* Chat Header */
+.chat-header {
+  padding: 1rem 1rem 0.5rem 1rem;
+  border-bottom: 1px solid #d1d5db;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.chat-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+  text-align: center;
+}
+
 /* Main Content Area */
 .main-content {
   flex: 1;
@@ -222,7 +240,7 @@
   margin: 0 auto;
   padding: 1rem;
   overflow-y: auto;
-  height: calc(100vh - 80px); /* Account for fixed input container */
+  height: calc(100vh - 140px); /* Account for header and fixed input container */
   padding-bottom: 100px; /* Extra space for input */
 }
 
@@ -230,10 +248,16 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  max-width: 90rem;
+  margin: 0 auto;
+  padding: 0; /* Remove padding to allow edge alignment */
 }
 
 .message-wrapper {
   display: flex;
+  width: 100%;
+  align-items: flex-start; /* Align items to top */
 }
 
 .message-wrapper.user {
@@ -249,6 +273,17 @@
   padding: 0.75rem 1rem;
   border-radius: 1rem;
   word-wrap: break-word;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.message-wrapper.user .message-bubble {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+.message-wrapper.assistant .message-bubble {
+  margin-left: 0;
+  margin-right: auto;
 }
 
 @media (min-width: 768px) {
@@ -611,12 +646,22 @@
   
   .chat-messages-container {
     padding: 0.5rem 1rem;
-    height: calc(100vh - 140px); /* Account for fixed input and hamburger */
+    height: calc(100vh - 200px); /* Account for header, fixed input and hamburger */
     padding-bottom: 100px;
   }
   
   .message-bubble {
     max-width: 85%;
+  }
+  
+  .message-wrapper.user .message-bubble {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+  }
+  
+  .message-wrapper.assistant .message-bubble {
+    margin-left: 0 !important;
+    margin-right: auto !important;
   }
   
   .input-container {
@@ -656,6 +701,16 @@
   .message-bubble {
     max-width: 90%;
     padding: 0.5rem 0.75rem;
+  }
+  
+  .message-wrapper.user .message-bubble {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+  }
+  
+  .message-wrapper.assistant .message-bubble {
+    margin-left: 0 !important;
+    margin-right: auto !important;
   }
   
   .model-select-input {
