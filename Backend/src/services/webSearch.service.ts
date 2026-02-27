@@ -16,9 +16,9 @@ interface TavilyResponse {
 }
 
 export const searchWeb = async (query: string) => {
-  console.log("🔍 Web search called with query:", query);
-  console.log("🔑 Using API key:", process.env.TAVILY_API_KEY ? "✅ Present" : "❌ Missing");
-  console.log("🔑 API key value (first 10 chars):", process.env.TAVILY_API_KEY?.substring(0, 10) + "...");
+ // console.log("🔍 Web search called with query:", query);
+ // console.log("🔑 Using API key:", process.env.TAVILY_API_KEY ? "✅ Present" : "❌ Missing");
+ // console.log("🔑 API key value (first 10 chars):", process.env.TAVILY_API_KEY?.substring(0, 10) + "...");
   
   if (!process.env.TAVILY_API_KEY) {
     console.error("❌ TAVILY_API_KEY is missing from environment variables!");
@@ -46,8 +46,8 @@ export const searchWeb = async (query: string) => {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("❌ Web search failed with status:", response.status);
-    console.error("❌ Error response:", errorText);
+   // console.error("❌ Web search failed with status:", response.status);
+   // console.error("❌ Error response:", errorText);
     throw new Error(`Failed to fetch web data: ${response.status} ${errorText}`);
   }
 
@@ -105,14 +105,6 @@ export const searchWeb = async (query: string) => {
       comprehensiveData += `${index + 1}. ${question}\n`;
     });
   }
-
-  // 4. Add metadata about the search
-  const searchTimestamp = new Date().toISOString();
-  comprehensiveData += `\nSEARCH METADATA:\n`;
-  comprehensiveData += `- Query: "${query}"\n`;
-  comprehensiveData += `- Search performed: ${searchTimestamp}\n`;
-  comprehensiveData += `- Sources found: ${data.results?.length || 0}\n`;
-  comprehensiveData += `- Data recency: Last 30 days\n`;
 
   console.log("✅ Comprehensive data assembled, length:", comprehensiveData.length);
   console.log("📄 Data preview:", comprehensiveData.substring(0, 300) + "...");

@@ -190,7 +190,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 56rem;
+  max-width: 90rem;
   margin: 0 auto;
   width: 100%;
   height: 100vh;
@@ -218,7 +218,7 @@
 /* Chat Messages Area */
 .chat-messages-container {
   flex: 1;
-  max-width: 56rem;
+  max-width: 90rem;
   margin: 0 auto;
   padding: 1rem;
   overflow-y: auto;
@@ -245,7 +245,7 @@
 }
 
 .message-bubble {
-  max-width: 20rem;
+  max-width: 40rem;
   padding: 0.75rem 1rem;
   border-radius: 1rem;
   word-wrap: break-word;
@@ -253,7 +253,13 @@
 
 @media (min-width: 768px) {
   .message-bubble {
-    max-width: 28rem;
+    max-width: 50rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .message-bubble {
+    max-width: 60rem;
   }
 }
 
@@ -295,7 +301,7 @@
 }
 
 .input-wrapper {
-  max-width: 32rem;
+  max-width: 90rem;
   margin: 0 auto;
 }
 
@@ -498,7 +504,7 @@
   }
   
   .message-bubble {
-    max-width: 24rem;
+    max-width: 40rem;
   }
 }
 

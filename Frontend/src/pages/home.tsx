@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ chats, onNewChat, isOpen = false, onC
         <nav className="sidebar-nav">
           <ul>
             <li><a href="#">Search chats</a></li>
-            <li><a href="#">Images</a></li>
+            {/* <li><a href="#">Images</a></li> */}
             <li><a href="#">Apps</a></li>
             <li><a href="#">Setting</a></li>
             <li><a href="#">Profile</a></li>
@@ -52,7 +52,7 @@ const Home: React.FC = () => {
   const { messages, streaming, model } = useSelector((state: any) => state.chat);
   const [input, setInput] = useState<string>("");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(window.innerWidth > 768);
-  const [testResponse, setTestResponse] = useState<string>("");
+  //const [testResponse, setTestResponse] = useState<string>("");
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -90,16 +90,7 @@ const Home: React.FC = () => {
   }, [dropdownOpen]);
 
   const dummyChats = [
-    "React Router Navigation Fix",
-    "Enable Firebase Storage", 
-    "Caricature Request for Job",
-    "Firebase Expo Connection Issue",
-    "CV Update Full Stack Dev",
-    "Motivational Letter IT Graduate",
-    "React Native Restaurant App",
-    "Code Review and Fixes",
-    "User Emails by Age",
-    "Audio Recording App CRUD",
+   ""
   ];
 
   const models: { key: ModelType; name: string }[] = [
