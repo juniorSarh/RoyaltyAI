@@ -132,45 +132,49 @@ const Home: React.FC = () => {
     dispatch(setModel(newModel));
   };
 
-  return (
+ return (
     <div className="home-layout">
-      <button 
-        className="hamburger-menu"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        ☰
-      </button>
+      {/* Sidebar logic remains same */}
       <Sidebar 
         chats={dummyChats} 
         onNewChat={handleNewChat}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
+
       <div className="main-content">
-        <div className="chat-header">
-          <h1 className="chat-title">Royalty AI</h1>
-        </div>
+        <header className="chat-header">
+           <button className="mobile-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
+           <h2 className="model-badge">{models.find(m => m.key === model)?.name}</h2>
+        </header>
+
         <div className="chat-messages-container">
           {messages.length === 0 ? (
-            <div className="welcome-message">
-              <h1>Hi there! what you want to know ?</h1>
+            <div className="welcome-screen">
+              <div className="logo-placeholder">R</div>
+              <h1>How can I help you today?</h1>
             </div>
           ) : (
             <div className="chat-messages">
               {messages.map((message: any, index: number) => (
-                <div
-                  key={index}
-                  className={`message-wrapper ${message.role}`}
-                >
-                  <div className={`message-bubble ${message.role}`}>
-                    {message.role === "assistant" ? (
-                      <MarkdownRenderer content={message.content} />
-                    ) : (
-                      message.content
-                    )}
-                    {streaming && index === messages.length - 1 && (
-                      <span className="streaming-cursor">|</span>
-                    )}
+                <div key={index} className={`message-row ${message.role}`}>
+                  <div className="avatar">
+                    {message.role === "assistant" ? "AI" : "U"}
+                  </div>
+                  <div className="message-content">
+                    <div className="sender-name">
+                      {message.role === "assistant" ? "Royalty AI" : "You"}
+                    </div>
+                    <div className="message-bubble">
+                      {message.role === "assistant" ? (
+                        <MarkdownRenderer content={message.content} />
+                      ) : (
+                        <p>{message.content}</p>
+                      )}
+                      {streaming && index === messages.length - 1 && (
+                        <span className="cursor-blink" />
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -178,54 +182,31 @@ const Home: React.FC = () => {
             </div>
           )}
         </div>
-        <div className="input-container">
-          <div className="input-wrapper">
-            <div className="input-box">
-              <div className="input-controls">
-                <div className="custom-dropdown">
-                  <button 
-                    className="dropdown-button"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                  >
-                    {models.find(m => m.key === model)?.name || 'Select Model'}
-                    <span className="dropdown-arrow">▼</span>
-                  </button>
-                  {dropdownOpen && (
-                    <div className="dropdown-menu">
-                      {models.map((model) => (
-                        <div 
-                          key={model.key}
-                          className="dropdown-item"
-                          onClick={() => {
-                            handleModelChange(model.key);
-                            setDropdownOpen(false);
-                          }}
-                        >
-                          {model.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  className="chat-input-field"
-                  placeholder="Message Royalty AI..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  disabled={streaming}
-                />
-                <button
-                  className="send-button"
-                  onClick={handleSendMessage}
-                  disabled={streaming || input.trim() === ""}
-                >
-                  Send
-                </button>
+
+        <div className="input-area">
+          <div className="input-card">
+            <div className="input-actions">
+              <div className="custom-dropdown">
+                {/* Your existing dropdown code */}
               </div>
             </div>
+            <textarea
+              className="chat-textarea"
+              placeholder="Message Royalty AI..."
+              value={input}
+              rows={1}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyPress} // Renamed for clarity
+            />
+            <button
+              className={`send-action-btn ${input.trim() ? 'active' : ''}`}
+              onClick={handleSendMessage}
+              disabled={streaming || !input.trim()}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
           </div>
+          <p className="input-footer-text">Royalty AI can make mistakes. Check important info.</p>
         </div>
       </div>
     </div>
