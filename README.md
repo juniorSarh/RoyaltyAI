@@ -1,3 +1,6 @@
+
+<img src="https://socialify.git.ci/juniorSarh/RoyaltyAI/image?language=1&owner=1&name=1&stargazers=1&theme=Light" alt="RoyaltyAI" width="640" height="320" />
+
 # RoyaltyAI
 
 A multi-model AI chat backend that allows users to chat with different AI models including Groq (Llama), StepFun, and GLM models.
