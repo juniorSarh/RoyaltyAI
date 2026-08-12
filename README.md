@@ -15,18 +15,6 @@ RoyaltyAI is a multi-model AI chat backend that allows users to interact with mu
 * **CORS Support**: Enabled for cross-origin frontend applications.
 * **Environment-Based Configuration**: API keys and configuration are managed through environment variables.
 
-## Supported Models
-
-| Model                 | Provider   | Model ID                              | API Key / Configuration | Selection Key |
-| --------------------- | ---------- | ------------------------------------- | ----------------------- | ------------- |
-| **Llama 3.1 70B**     | Groq       | `llama-3.1-70b-versatile`             | `GROQ_API_KEY`          | `llama`       |
-| **StepFun-v2**        | OpenRouter | `stepfun-ai/stepfun-v2`               | `OPENROUTER_API_KEY`    | `stepfun`     |
-| **GLM-4**             | OpenRouter | `zhipuai/glm-4`                       | `OPENROUTER_API_KEY`    | `glm`         |
-| **Nemotron-3-Nano**   | OpenRouter | `nvidia/nemotron-3-nano-30b-a3b:free` | `OPENROUTER_API_KEY`    | `nemotron`    |
-| **Google Gemini Pro** | Google AI  | `gemini-pro`                          | `GOOGLE_API_KEY`        | `gemini`      |
-
-> **Note:** The exact model IDs and provider requirements depend on the implementation in `src/AI-Models/models.ts`. If the project uses different environment-variable names, update the examples below to match your implementation.
-
 ## Prerequisites
 
 Before installing RoyaltyAI, make sure you have:
