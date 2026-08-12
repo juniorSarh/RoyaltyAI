@@ -33,15 +33,15 @@ Before installing RoyaltyAI, make sure you have:
 
 * [Node.js](https://nodejs.org/) v16 or higher
 * npm or Yarn
-* API keys for the AI providers you intend to use
+
 
 ## Installation
 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
-cd <repository-name>
+git clone https://github.com/juniorSarh/RoyaltyAI.git
+cd RoyaltyAI
 ```
 
 ### 2. Navigate to the backend directory
@@ -74,14 +74,6 @@ PORT=5000
 ```
 
 Only configure the API keys required by the models you intend to use.
-
-## Getting API Keys
-
-* **Groq**: Get an API key from the [Groq Console](https://console.groq.com/keys?utm_source=chatgpt.com).
-* **OpenRouter**: Get an API key from [OpenRouter Keys](https://openrouter.ai/keys?utm_source=chatgpt.com). This can be used for the StepFun, GLM, and Nemotron models when they are accessed through OpenRouter.
-* **Google AI**: Obtain a Gemini API key through [Google AI Studio](https://aistudio.google.com/app/apikey?utm_source=chatgpt.com).
-
-> **Security:** Never commit your `.env` file or expose your API keys in source control. Make sure `.env` is included in `.gitignore`.
 
 ## Running the Application
 
