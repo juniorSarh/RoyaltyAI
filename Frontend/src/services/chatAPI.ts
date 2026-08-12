@@ -45,7 +45,7 @@ export const streamChat =
         throw new Error("Streaming not supported");
       }
 
-      console.log("🔄 Starting stream...");
+      //console.log("🔄 Starting stream...");
       let fullResponse = "";
 
       try {
@@ -58,7 +58,7 @@ export const streamChat =
           }
 
           const chunk = decoder.decode(value, { stream: true });
-          console.log("📦 Raw chunk from backend:", chunk);
+          //console.log("📦 Raw chunk from backend:", chunk);
           
           // Handle multi-line chunks properly
           const lines = chunk.split("\n");
@@ -73,11 +73,11 @@ export const streamChat =
               // If we have accumulated data, process it first
               if (currentData.trim()) {
                 console.log("🔤 Raw data from backend (accumulated):", JSON.stringify(currentData.trim()));
-                console.log("🔤 Token length:", currentData.trim().length);
+                //console.log("🔤 Token length:", currentData.trim().length);
                 fullResponse += currentData.trim();
-                console.log("📤 About to dispatch token to Redux:", JSON.stringify(currentData.trim()));
+                //console.log("📤 About to dispatch token to Redux:", JSON.stringify(currentData.trim()));
                 dispatch(updateLastAssistantMessage(currentData.trim()));
-                console.log("✅ Token dispatched to Redux");
+               // console.log("✅ Token dispatched to Redux");
                 
                 const currentState = getState().chat.messages;
                 const lastMessage = currentState[currentState.length - 1];

@@ -2,17 +2,12 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-/**
- * Ensure OpenRouter API key exists
- * (OpenRouter routes to all models)
- */
+
 if (!process.env.OPENROUTER_API_KEY) {
   throw new Error("OPENROUTER_API_KEY is missing in .env");
 }
 
-/**
- * Supported model keys
- */
+
 export type ModelKey = "trinity" | "stepfun" | "glm" | "nemotron" | "gpt_oss";
 
 /**
