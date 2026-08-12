@@ -47,7 +47,8 @@ cd RoyaltyAI
 ### 2. Navigate to the backend directory
 
 ```bash
-cd Backend & cd Frontend
+cd Backend  for running server
+cd Frontend  for running app
 ```
 
 ### 3. Install dependencies
